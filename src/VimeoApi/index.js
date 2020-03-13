@@ -44,11 +44,14 @@ import React from 'react';
 
 function VimeoApi({channel}){
 	const [allVideos, setAllVideos] = React.useState();
+	const [videoList, setVideoList] = React.useState();
+	
 	
 	if(channel){
 		console.log(`channel is ${channel}`);
 	}
 	
+	// Fetch all videos
 	React.useEffect(() => {
 		if(!allVideos && channel){
       (async () => {
@@ -58,18 +61,41 @@ function VimeoApi({channel}){
   });
 	
 	
+	// If videos exist, loop through and list them out
 	React.useEffect(() => {
 		if(allVideos){
     	console.log(allVideos);
-//				allVideos.map((video, index) => {
-//					console.log(
-//						`Video ${video.name}, ${video.link}
-//						 has ${video.metadata.connections.texttracks.total} text tracks`
-//					);
-//				});	
+			let videoDetailsList ='';
+			 allVideos.map((video, index) => {
+				 videoDetailsList +=`
+						<p>Index is: ${index} </p>
+						<p>Video name is: ${video.name}</p>
+						<p>Video id is: ${video.link}</p>
+						<p>Video caption is: ${video.metadata.connections.texttracks.total}</p>
+				`;
+			 });
+			 setVideoList(videoDetailsList);
 		}
   },[allVideos]);
 	
+	// If the video list exists, render it out
+	if(videoList){
+		 return(
+			 <div dangerouslySetInnerHTML={{ __html: videoList }}>
+			 </div>
+		 );
+	}
+	
+	// Check to see if a channel exists
+	if(!channel){
+		 return(
+			<div>
+				Add channel
+			</div>
+		 );
+	}
+	
+	// Otherwise, render out default screen
   return (
     <div>
       Content loading

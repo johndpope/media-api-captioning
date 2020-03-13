@@ -129,6 +129,7 @@ function YoutubeApi({channel}){
 		 );
 	}
 	
+	// Check to see if a channel exists
 	if(!channel){
 		 return(
 			<div>

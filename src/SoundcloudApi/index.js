@@ -1,71 +1,51 @@
 import React from 'react';
 
-	var SC = require('soundcloud');
-	SC.initialize({
-		client_id: process.env.REACT_APP_SOUNDCLOUD_CLIENT_ID, 
-	});
-
-
-const fetchTrackTotal = async (setTrackTotal) => {
-	SC.resolve('https://soundcloud.com/harvard').then(function(user){ 
-		setTrackTotal(user.track_count);
-	});
+// Get track total
+const fetchTrackTotal = async (setTrackTotal, channel) => {
+	const fetchUrl=`http://api.soundcloud.com/users/${channel}?client_id=${ process.env.REACT_APP_SOUNDCLOUD_CLIENT_ID}`,
+					response = await fetch(fetchUrl),
+					json = await response.json();
+		console.log(json.track_count);
+		setTrackTotal(json.track_count);
 };
 
+// Fetch all of the tracks
 const fetchAllTracks = async (setAllTracks, trackTotal, channel) => {
 	var page_size = 200; 
-	let totalPages = Math.ceil(trackTotal / page_size);
-	let trackArray;
-	console.log(totalPages);
-	SC.get(`/users/${channel}/tracks`, { 
-		limit: page_size,
-		linked_partitioning: 1
-	}).then(function(tracks){
-		trackArray = tracks
-		console.log(trackArray);
-		var newUrl = tracks.next_href;
-		console.log(newUrl)
-		let newUrlRelative = newUrl.replace("https://api.soundcloud.com", "");
-		console.log(newUrlRelative);
-				
-//		for (let step = 2; step <= 5; step++) {
-
-//			SC.get(newUrlRelative, { 
-//					limit: 200,
-//					linked_partitioning: 1
-//				}).then(function(newtracks){
-//					console.log(newtracks.collection);
-//				  console.log(newtracks.next_href);
-//			})
-		
-				SC.get(newUrlRelative).then(function(newtracks){
-					console.log(newtracks);
-					var newnewtracks = newtracks.next_href;
-				})
-
-//		}
-	})
+	let offset = 0;
+	let totalPages = Math.ceil(trackTotal / page_size); //3828 // 20
+	let trackArray = [];
+	for (let step = 0; step <= totalPages; step++) {
+		offset = step * 200;
+		const fetchUrl=`http://api.soundcloud.com/users/${channel}/tracks.json?client_id=${ process.env.REACT_APP_SOUNDCLOUD_CLIENT_ID}&offset=${offset}&limit=${page_size}`,
+				response = await fetch(fetchUrl),
+				json = await response.json();
+				trackArray = [...trackArray, ...json];
+	}
+	// Add video array to state
+	setAllTracks(trackArray);
 };
+
 
 function SoundcloudApi({channel}){
 	const [trackTotal, setTrackTotal] = React.useState();
 	const [allTracks, setAllTracks] = React.useState();
+	const [trackList, setTrackList] = React.useState();
 	
 	if(channel){
 		console.log(`channel is ${channel}`);
 	}
 	
-	//
-
-	
+	// Get track total
 	React.useEffect(() => {
 		if(!trackTotal){
       (async () => {
-        const incomingData = await fetchTrackTotal(setTrackTotal);
+        const incomingData = await fetchTrackTotal(setTrackTotal, channel);
       })(trackTotal);
 		}
   });
 	
+	// If track todal, get track data
 	React.useEffect(() => {
 		if(trackTotal && channel){ 
       (async () => {
@@ -73,6 +53,43 @@ function SoundcloudApi({channel}){
       })();
 		}
   },[trackTotal, channel]);
+	
+	// If tracks, loop through and list them out
+	React.useEffect(() => {
+		 if(allTracks){
+			 let trackList ='';
+			 allTracks.map((track, index) => {
+				 trackList +=`
+						<p>Index is: ${index} </p>
+						<p>Track name is: ${track.title}</p>
+						<p>Track id is: ${track.id}</p>
+						<p>Track caption is: unknown</p>
+						<p>Track duration is: ${track.duration}</p>
+				`;
+			 });
+			 setTrackList(trackList);
+		 }
+  }, [allTracks]);	
+
+	// If the track list exists, render it out
+	if(trackList){
+		console.log(allTracks.length);
+		console.log(allTracks);
+	 	return(
+		 	<div dangerouslySetInnerHTML={{ __html: trackList }}>
+		 	</div>
+	 	);
+	}
+	
+	// Check to see if a channel exists
+	if(!channel){
+		 return(
+			<div>
+				Add channel
+			</div>
+		 );
+	}
+	
 	// Otherwise, render out default screen
   return (
     <div>
