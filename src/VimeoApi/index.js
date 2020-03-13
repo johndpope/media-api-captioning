@@ -1,5 +1,5 @@
 import React from 'react';
-
+import ApiResults from "../ApiResults";
 
 	// test all 100 videos
 	const fetchAllVideos = async (setAllVideos, setVideoCount, setChannelName, channel) => {
@@ -44,7 +44,6 @@ function VimeoApi({channel}){
 	const [videoCount, setVideoCount] = React.useState();
 	const [channelName, setChannelName] = React.useState();
 	const [allVideos, setAllVideos] = React.useState();
-	const [videoList, setVideoList] = React.useState();
 	
 	
 	if(channel){
@@ -60,33 +59,8 @@ function VimeoApi({channel}){
 		}
   });
 	
-	
-	// If videos exist, loop through and list them out
-	React.useEffect(() => {
-		if(allVideos){
-			console.log(videoCount);
-    	console.log(allVideos);
-			let videoDetailsList ='';
-			 allVideos.map((video, index) => {
-				 videoDetailsList +=`
-						<tr>
-							<td>${index + 1}</td>
-							<td>${video.name}</td>
-              <td>${video.link}</td>
-              <td>${video.release_time}</td>
-              <td>${video.duration}</td>
-							<td>${video.metadata.connections.texttracks.total}</td>
-              <td>${video.stats.plays}</td>
-							<td>${video.link}</td>
-						</tr>
-				`;
-			 });
-			 setVideoList(videoDetailsList);
-		}
-  },[allVideos]);
-	
 	// If the video list exists, render it out
-	if(videoList){
+	if(allVideos){
 		 return(
 			 <section>
 				 <h2>{channelName}</h2>
@@ -106,7 +80,20 @@ function VimeoApi({channel}){
 			 				 <th>URL</th>
 					   </tr>
 					 </thead>
-					 <tbody dangerouslySetInnerHTML={{ __html: videoList }}>
+			     <tbody>
+			     {allVideos.map((video, index) => (
+               <ApiResults
+			 						key={index} 
+									index={index + 1}
+									name={video.name} 
+									id={video.link}
+									publishDate={video.release_time} 
+									duration={video.duration}
+									textAlternative={video.metadata.connections.texttracks.total}
+									plays={video.stats.plays}
+									url={video.link}
+								/>
+            ))}
 				   </tbody>
 				 </table>
 			 </section>

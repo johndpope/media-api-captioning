@@ -1,6 +1,6 @@
 import React from 'react';
 
-function Apiresults(index, name, id, publishDate, duration, textAlternative, plays, url) {
+function ApiResults({index, name, id, publishDate, duration, textAlternative, plays, url}) {
 	console.log('apiresults');
 	
 	return (
@@ -18,4 +18,4 @@ function Apiresults(index, name, id, publishDate, duration, textAlternative, pla
 
 }
 
-export default Apiresults;
+export default ApiResults;
