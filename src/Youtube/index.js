@@ -4,10 +4,8 @@ import YoutubeApi from "../YoutubeApi";
 
 function Youtube(){
 	
-  const [inputValue, setInputValue] = React.useState("");
+  const [inputValue, setInputValue] = React.useState("UCzDBIpzRuHhZspX2udJ2npg");
 	const [channel, setChannel] = React.useState("");
-	
-	console.log(`example channel is UCzDBIpzRuHhZspX2udJ2npg`);
 	
 	// Handle submit
   function handleSubmit(event) {

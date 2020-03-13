@@ -2,7 +2,7 @@ import React from 'react';
 
 
 	// test all 100 videos
-	const fetchAllVideos = async (setAllVideos, channel) => {
+	const fetchAllVideos = async (setAllVideos, setVideoCount, setChannelName, channel) => {
 		
 		let client_id = process.env.REACT_APP_VIMEO_CLIENT_ID;
 		let client_secret = process.env.REACT_APP_VIMEO_CLIENT_SECRET;
@@ -17,10 +17,10 @@ import React from 'react';
 			let totalPages = Math.ceil(body.total / 100);
 			console.log(body);
 			let allVideos = body.data;
+			let videoCount = body.total;
+			let channelName = body.data[0].user.name;
 			
 			if(totalPages > 1) {
-				console.log('Has more than one page');
-				
 				// loop through
 				for (let step = 2; step <= totalPages; step++) {
 					console.log(step);
@@ -31,18 +31,18 @@ import React from 'react';
 						 allVideos = [...allVideos, ...body.data] 
 						 console.log(allVideos.length);
 						 setAllVideos(allVideos);
-//						if(step == totalPages){
-//							 setAllVideos(allVideos);
-//						}
 					})
 				}
-				console.log(allVideos.length);
+				setVideoCount(videoCount);
+				setChannelName(channelName);
 			}
 		})
 	};
 
 
 function VimeoApi({channel}){
+	const [videoCount, setVideoCount] = React.useState();
+	const [channelName, setChannelName] = React.useState();
 	const [allVideos, setAllVideos] = React.useState();
 	const [videoList, setVideoList] = React.useState();
 	
@@ -55,7 +55,7 @@ function VimeoApi({channel}){
 	React.useEffect(() => {
 		if(!allVideos && channel){
       (async () => {
-        const incomingData = await fetchAllVideos(setAllVideos, channel);
+        const incomingData = await fetchAllVideos(setAllVideos, setVideoCount, setChannelName, channel);
       })(allVideos, channel);
 		}
   });
@@ -64,14 +64,21 @@ function VimeoApi({channel}){
 	// If videos exist, loop through and list them out
 	React.useEffect(() => {
 		if(allVideos){
+			console.log(videoCount);
     	console.log(allVideos);
 			let videoDetailsList ='';
 			 allVideos.map((video, index) => {
 				 videoDetailsList +=`
-						<p>Index is: ${index} </p>
-						<p>Video name is: ${video.name}</p>
-						<p>Video id is: ${video.link}</p>
-						<p>Video caption is: ${video.metadata.connections.texttracks.total}</p>
+						<tr>
+							<td>${index + 1}</td>
+							<td>${video.name}</td>
+              <td>${video.link}</td>
+              <td>${video.release_time}</td>
+              <td>${video.duration}</td>
+							<td>${video.metadata.connections.texttracks.total}</td>
+              <td>${video.stats.plays}</td>
+							<td>${video.link}</td>
+						</tr>
 				`;
 			 });
 			 setVideoList(videoDetailsList);
@@ -81,8 +88,28 @@ function VimeoApi({channel}){
 	// If the video list exists, render it out
 	if(videoList){
 		 return(
-			 <div dangerouslySetInnerHTML={{ __html: videoList }}>
-			 </div>
+			 <section>
+				 <h2>{channelName}</h2>
+			   <div>Channel id: {channel}</div>
+			 	 <div>Channel media count: {videoCount} </div>
+				 <table>
+					 <caption>API Media Results</caption>
+					 <thead>
+						 <tr>
+							 <th>Index</th>
+							 <th>Title</th>
+							 <th>ID</th>
+			 				 <th>Publish Date</th>
+			 				 <th>Duration</th>
+							 <th>Text Alternative</th>
+						   <th>Plays</th>
+			 				 <th>URL</th>
+					   </tr>
+					 </thead>
+					 <tbody dangerouslySetInnerHTML={{ __html: videoList }}>
+				   </tbody>
+				 </table>
+			 </section>
 		 );
 	}
 	

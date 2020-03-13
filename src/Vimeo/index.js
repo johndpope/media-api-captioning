@@ -4,10 +4,10 @@ import VimeoApi from "../VimeoApi";
 
 function Vimeo(){
 	
-  const [inputValue, setInputValue] = React.useState("");
+  const [inputValue, setInputValue] = React.useState("8632531");
 	const [channel, setChannel] = React.useState("");
 	
-	console.log('channel example is 8632531');
+	
 	// Handle submit
   function handleSubmit(event) {
     event.preventDefault();

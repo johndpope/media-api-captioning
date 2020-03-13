@@ -3,11 +3,9 @@ import Form from "../Form";
 import SoundcloudApi from "../SoundcloudApi";
 
 function Soundcloud(){
-  const [inputValue, setInputValue] = React.useState("");
+  const [inputValue, setInputValue] = React.useState("18258349");
 	const [channel, setChannel] = React.useState("");
-	
-	console.log('example channel 18258349');
-	
+
 	// Handle submit
   function handleSubmit(event) {
     event.preventDefault();
