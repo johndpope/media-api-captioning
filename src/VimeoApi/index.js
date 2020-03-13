@@ -29,10 +29,12 @@ import ApiResults from "../ApiResults";
 						path: `/users/${channel}/videos?per_page=100&page=${step}`
 					}, function (error, body, status_code, headers) {
 						 allVideos = [...allVideos, ...body.data] 
-						 console.log(allVideos.length);
-						 setAllVideos(allVideos);
+						if(allVideos.length === videoCount){
+							 setAllVideos(allVideos);
+						}
 					})
 				}
+
 				setVideoCount(videoCount);
 				setChannelName(channelName);
 			}
@@ -45,19 +47,14 @@ function VimeoApi({channel}){
 	const [channelName, setChannelName] = React.useState();
 	const [allVideos, setAllVideos] = React.useState();
 	
-	
-	if(channel){
-		console.log(`channel is ${channel}`);
-	}
-	
 	// Fetch all videos
 	React.useEffect(() => {
 		if(!allVideos && channel){
       (async () => {
         const incomingData = await fetchAllVideos(setAllVideos, setVideoCount, setChannelName, channel);
-      })(allVideos, channel);
+      })();
 		}
-  });
+  }, [channel]);
 	
 	// If the video list exists, render it out
 	if(allVideos){
