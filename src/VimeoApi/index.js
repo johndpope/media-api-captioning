@@ -62,7 +62,10 @@ function VimeoApi({channel}){
 			 <section>
 				 <h2>{channelName}</h2>
 			   <div>Channel id: {channel}</div>
-			 	 <div>Channel media count: {videoCount} </div>
+			 	 <div>Channel media count: {videoCount}</div>
+			   <div>Channel media duration: {videoCount}</div>
+			   <div>Channel captioned elements: x</div>
+			   <div>Channel captioned duration: xxxx</div>
 				 <table>
 					 <caption>API Media Results</caption>
 					 <thead>

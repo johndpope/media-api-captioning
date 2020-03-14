@@ -1,4 +1,5 @@
 import React from 'react';
+import ApiResults from "../ApiResults";
 
 // API details call
 async function videoAPICall(api, videoChunk){
@@ -13,12 +14,15 @@ async function videoAPICall(api, videoChunk){
 
 
 // Get list of all videos related to a channel
-const fetchVideos = async(api, setVideos, channelId) => {
+const fetchVideos = async(api, setVideos, channelId, setChannelName) => {
 	console.log(channelId);
 	// API request for intial videos (50)
   const fetchUrl=`https://www.googleapis.com/youtube/v3/search?key=${api}&channelId=${channelId}&part=id,snippet&maxResults=50`,
 				response = await fetch(fetchUrl),
 				json = await response.json();
+	      console.log(json);
+	let channelName = json.items[0].snippet.channelTitle;
+	setChannelName(channelName);
 	let nextPageToken = json.nextPageToken,
 			videoArray = json.items,
 			totalPages = Math.ceil(json.pageInfo.totalResults / 50);
@@ -76,6 +80,7 @@ function YoutubeApi({channel}){
   const [videos, setVideos] = React.useState();
 	const [videoDetails, setVideoDetails] = React.useState();
 	const [videoList, setVideoList] = React.useState();
+	const [channelName, setChannelName] = React.useState();
 	const api = process.env.REACT_APP_YOUTUBE_API_KEY;
 	
 	if(channel){
@@ -86,7 +91,7 @@ function YoutubeApi({channel}){
 	React.useEffect(() => {
     if(!videos && channel){
       (async () => {
-        const incomingData = await fetchVideos(api, setVideos, channel);
+        const incomingData = await fetchVideos(api, setVideos, channel, setChannelName);
       })();
     }
   }, [channel]);	
@@ -100,32 +105,52 @@ function YoutubeApi({channel}){
     }
   }, [videos]);	
 	
-	// If video details exist, loop through and list them out
-	React.useEffect(() => {
-		 if(videos && videoDetails && (videos.length === videoDetails.length)){
-			 let videoDetailsList ='';
-			 videoDetails.map((video, index) => {
-				 videoDetailsList +=`
-						<p>Index is: ${index} </p>
-						<p>Video name is: ${videos[index].snippet.title}</p>
-						<p>Video id is: ${video.id}</p>
-						<p>Video caption is: ${video.contentDetails.caption}</p>
-						<p>Video duration is: ${video.contentDetails.duration}</p>
-				`;
-			 });
-			 setVideoList(videoDetailsList);
-		 }
-  }, [videos, videoDetails]);	
 	
 	// Console log out arrays for review
 	console.log(videos);
 	console.log(videoDetails);
 	
 	// If the video list exists, render it out
-	if(videoList){
+	if(videoDetails){
 		 return(
-			 <div dangerouslySetInnerHTML={{ __html: videoList }}>
-			 </div>
+			 <section>
+				 <h2>{channelName}</h2>
+			   <div>Channel id: {channel}</div>
+			 	 <div>Channel media count: {videoDetails.length}</div>
+			   <div>Channel media duration: {'x'}</div>
+			   <div>Channel captioned elements: x</div>
+			   <div>Channel captioned duration: xxxx</div>
+				 <table>
+					 <caption>API Media Results</caption>
+					 <thead>
+						 <tr>
+							 <th>Index</th>
+							 <th>Title</th>
+							 <th>ID</th>
+			 				 <th>Publish Date</th>
+			 				 <th>Duration</th>
+							 <th>Text Alternative</th>
+						   <th>Plays</th>
+			 				 <th>URL</th>
+					   </tr>
+					 </thead>
+			     <tbody>
+			     {videoDetails.map((video, index) => (
+               <ApiResults
+			 						key={index} 
+									index={index + 1}
+									name={videos[index].snippet.title} 
+									id={video.id}
+									publishDate={videos[index].snippet.publishedAt} 
+									duration={video.contentDetails.duration}
+									textAlternative={video.contentDetails.caption}
+									plays={video.statistics.viewCount}
+									url={'x'}
+								/>
+            ))}
+				   </tbody>
+				 </table>
+			 </section>
 		 );
 	}
 	
