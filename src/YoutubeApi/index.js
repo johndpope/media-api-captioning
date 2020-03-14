@@ -83,10 +83,6 @@ function YoutubeApi({channel}){
 	const [channelName, setChannelName] = React.useState();
 	const api = process.env.REACT_APP_YOUTUBE_API_KEY;
 	
-	if(channel){
-		console.log(`channel is ${channel}`);
-	}
-	
 	// Fetch all videos
 	React.useEffect(() => {
     if(!videos && channel){
