@@ -5,10 +5,11 @@ import Youtube from "../Youtube";
 import Vimeo from "../Vimeo";
 import Soundcloud from "../Soundcloud";
 import Siteimprove from "../Siteimprove";
+import FirebaseApi from "../FirebaseApi";
 
 
 // APP
-function App() {
+function App() {	
 	
 	// App View
   return(
@@ -18,6 +19,7 @@ function App() {
 			<Route exact path="/vimeo" component={Vimeo} />
 			<Route exact path="/soundcloud" component={Soundcloud} />
 			<Route exact path="/siteimprove" component={Siteimprove} />
+			<Route exact path="/firebase" component={FirebaseApi} />
     </Router>
   )
 	
