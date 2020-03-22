@@ -16,25 +16,88 @@ firebase.initializeApp(config);
 
 function FirebaseApi(){
 	 
-// State
-const [channelNameValue, setChannelNameValue] = React.useState(""),
-			[channelName, setChannelName] = React.useState(""),
-			[channelIdValue, setChannelIdValue] = React.useState(""),
-			[channelId, setChannelId] = React.useState(""),
-			[allChannels, setAllChannels] = React.useState("");
-	    
+	// State
+	const [channelNameValue, setChannelNameValue] = React.useState(""),
+				[channelName, setChannelName] = React.useState(""),
+				[channelIdValue, setChannelIdValue] = React.useState(""),
+				[channelId, setChannelId] = React.useState(""),
+				[allChannels, setAllChannels] = React.useState("");
+
+
+	// Variables
+	let database = firebase.database().ref('youtube/channels');
+
+	let testArray = [
+			{
+				"videoName": "Things",
+				"videoDuration": 1,
+				"videoTranscripts": "yes"
+			},
+			{
+				"videoName": "Molecule Man",
+				"videoId": 2,
+				"videoTranscripts": "yes"
+			},
+			{
+				"videoName": "True",
+				"videoId": 3,
+				"videoTranscripts": "yes"
+			},
+	];
+
+	let channelArray = [];
 	
-// Variables
-let database = firebase.database().ref('youtube/channels');
+	// CHECK IF VALUE EXISTS BY LOOPING THROUGHT ALL RESULTS
+//	React.useEffect(() => {
+//		database.on('value', function(results) {
+//			channelArray = [];
+//			let allChannels = results.val();
+//			for(var channel in allChannels) {
+//				let channelId = allChannels[channel].channelId;
+//				channelArray.push(channelId);
+//				 console.log('checking channel ids');
+//			}
+//		})
+//	 }, [allChannels]);
+	function createChannelIdArray(){
+		database.on('value', function(results) {
+			channelArray = [];
+			let allChannels = results.val();
+			for(var channel in allChannels) {
+				let channelId = allChannels[channel].channelId;
+				channelArray.push(channelId);
+				 console.log('checking channel ids');
+			}
+		})
+	};
+
+	// WRITE TO DATABASE
+	function writeChannelData(name, id, videos) {
+		console.log(channelArray);
+		console.log(id);
+		if(!channelArray.includes(id)){
+			firebase.database().ref(`youtube/channels`).push({
+				channelName: name, 
+				channelId: id,
+				channelVideos: videos
+			});
+		}
+	};
+	
+	
 
 	// Submit Function
 	function handleSubmit(event) {
 		event.preventDefault();
 		setChannelName(channelNameValue);
 		setChannelId(channelIdValue);
+		setChannelNameValue('');
+		setChannelIdValue('');
+		createChannelIdArray();
+		writeChannelData(channelNameValue, channelIdValue, testArray);
 	}
 
-	// List all database channels
+	// List all channels from firebase
 	React.useEffect(() => {
 		if(database){
 			database.on('value', function(results) {

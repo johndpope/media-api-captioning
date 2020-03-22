@@ -16,6 +16,7 @@ function Home(){
 		  	<Link to="/youtube">Youtube</Link>
 				<Link to="/vimeo">Vimeo</Link>
 				<Link to="/soundcloud">Soundcloud</Link> 
+				<Link to="/firebase">Firebase</Link> 
 			</nav>
     </div>
   )
