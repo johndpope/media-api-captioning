@@ -1,5 +1,7 @@
 import React from 'react';
 import ApiResults from "../ApiResults";
+import Moment from 'react-moment';
+import momentjs from "moment";
 
 	// test all 100 videos
 	const fetchAllVideos = async (setAllVideos, setVideoCount, setChannelName, channel) => {
@@ -23,7 +25,6 @@ import ApiResults from "../ApiResults";
 			if(totalPages > 1) {
 				// loop through
 				for (let step = 2; step <= totalPages; step++) {
-					console.log(step);
 					client.request({
 						method: 'GET',
 						path: `/users/${channel}/videos?per_page=100&page=${step}`
@@ -41,11 +42,37 @@ import ApiResults from "../ApiResults";
 		})
 	};
 
+	// Format video id
+	function formatId(videoId){
+		let newVideoId = videoId.replace("/videos/", "");
+		return newVideoId;
+	}
+
+	// Format text alternatives
+	function formatTextAlternative(textAlternative){
+		if(textAlternative === 1){
+			return 'yes';
+		} else if (textAlternative === 0){
+			return 'no';
+		} else {
+			return 'broken';
+		}
+	}
+
+  // Format date 
+	function formatDate(date){
+		let newDate = momentjs(date).format('YYYY-MM-DD HH:mm');
+		return newDate;
+	}
 
 function VimeoApi({channel}){
 	const [videoCount, setVideoCount] = React.useState();
+	const [captionedVideoCount, setCaptionedVideoCount] = React.useState();
+	const [videoDuration, setVideoDuration] = React.useState();
+	const [captionedVideoDuration, setCaptionedVideoDuration] = React.useState();
 	const [channelName, setChannelName] = React.useState();
 	const [allVideos, setAllVideos] = React.useState();
+	
 	
 	// Fetch all videos
 	React.useEffect(() => {
@@ -56,22 +83,49 @@ function VimeoApi({channel}){
 		}
   }, [channel]);
 	
+	// Fetch all videos
+	React.useEffect(() => {
+		if(allVideos){
+			let captionedVideos = [],
+					videoTime = 0,
+					captionedVideoTime = 0;
+			
+      allVideos.map((video, index) => {
+				console.log(video);
+				// If video has captions
+				videoTime = videoTime + video.duration;
+				if(video.metadata.connections.texttracks.total === 1){
+				 // Add to captioned video array
+				 captionedVideos.push(formatId(video.uri));
+			   // calculate captioned video duration
+			   captionedVideoTime = captionedVideoTime + video.duration;
+				}
+			})
+			// Set channel metrics
+			setCaptionedVideoCount(captionedVideos.length);
+			setVideoDuration(videoTime);
+			setCaptionedVideoDuration(captionedVideoTime);
+		}
+  }, [allVideos]);
+	
 	// If the video list exists, render it out
 	if(allVideos){
 		 return(
 			 <section>
 				 <h2>{channelName}</h2>
 			   <div>Channel id: {channel}</div>
+			   <div>Channel URL:</div>
 			 	 <div>Channel media count: {videoCount}</div>
-			   <div>Channel media duration: {videoCount}</div>
-			   <div>Channel captioned elements: x</div>
-			   <div>Channel captioned duration: xxxx</div>
+			   <div>Channel captioned media count: {captionedVideoCount}</div>
+			   <div>Channel media duration: {videoDuration}</div>
+			   <div>Channel captioned media duration: {captionedVideoDuration}</div>
+			 
 				 <table>
 					 <caption>API Media Results</caption>
 					 <thead>
 						 <tr>
 							 <th>Index</th>
-							 <th>Title</th>
+							 <th>Name</th>
 							 <th>ID</th>
 			 				 <th>Publish Date</th>
 			 				 <th>Duration</th>
@@ -86,10 +140,10 @@ function VimeoApi({channel}){
 			 						key={index} 
 									index={index + 1}
 									name={video.name} 
-									id={video.link}
-									publishDate={video.release_time} 
+									id={formatId(video.uri)}
+									publishDate={formatDate(video.release_time)}
 									duration={video.duration}
-									textAlternative={video.metadata.connections.texttracks.total}
+									textAlternative={formatTextAlternative(video.metadata.connections.texttracks.total)}
 									plays={video.stats.plays}
 									url={video.link}
 								/>
