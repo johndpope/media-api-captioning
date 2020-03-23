@@ -14,51 +14,24 @@ const config = {
 firebase.initializeApp(config);
 
 
-function FirebaseApi(){
-	 
-	// State
-	const [channelNameValue, setChannelNameValue] = React.useState(""),
-				[channelName, setChannelName] = React.useState(""),
-				[channelIdValue, setChannelIdValue] = React.useState(""),
-				[channelId, setChannelId] = React.useState(""),
-				[allChannels, setAllChannels] = React.useState("");
+function FirebaseApi({platform, channelNamez, channelIdz, channelUrl, videoCount, captionedVideoCount, videoDuration, captionedVideoDuration, allVideos }){
+	
+	console.log(platform);
+	console.log(channelNamez);
+	console.log(channelIdz);
+	console.log(channelUrl);
+	console.log(videoCount);
+	console.log(captionedVideoCount);
+	console.log(videoDuration);
+	console.log(captionedVideoDuration);
+	console.log(allVideos);
 
 
 	// Variables
-	let database = firebase.database().ref('youtube/channels');
-
-	let testArray = [
-			{
-				"videoName": "Things",
-				"videoDuration": 1,
-				"videoTranscripts": "yes"
-			},
-			{
-				"videoName": "Molecule Man",
-				"videoId": 2,
-				"videoTranscripts": "yes"
-			},
-			{
-				"videoName": "True",
-				"videoId": 3,
-				"videoTranscripts": "yes"
-			},
-	];
+	let database = firebase.database().ref('vimeo/channels');
 
 	let channelArray = [];
 	
-	// CHECK IF VALUE EXISTS BY LOOPING THROUGHT ALL RESULTS
-//	React.useEffect(() => {
-//		database.on('value', function(results) {
-//			channelArray = [];
-//			let allChannels = results.val();
-//			for(var channel in allChannels) {
-//				let channelId = allChannels[channel].channelId;
-//				channelArray.push(channelId);
-//				 console.log('checking channel ids');
-//			}
-//		})
-//	 }, [allChannels]);
 	function createChannelIdArray(){
 		database.on('value', function(results) {
 			channelArray = [];
@@ -70,102 +43,48 @@ function FirebaseApi(){
 			}
 		})
 	};
-
-	// WRITE TO DATABASE
-	function writeChannelData(name, id, videos) {
-		console.log(channelArray);
-		console.log(id);
-		if(!channelArray.includes(id)){
-			firebase.database().ref(`youtube/channels`).push({
-				channelName: name, 
-				channelId: id,
-				channelVideos: videos
-			});
-		}
-	};
 	
 	
-
-	// Submit Function
-	function handleSubmit(event) {
-		event.preventDefault();
-		setChannelName(channelNameValue);
-		setChannelId(channelIdValue);
-		setChannelNameValue('');
-		setChannelIdValue('');
-		createChannelIdArray();
-		writeChannelData(channelNameValue, channelIdValue, testArray);
-	}
-
-	// List all channels from firebase
 	React.useEffect(() => {
 		if(database){
-			database.on('value', function(results) {
-				let channelArray = [];
-				let allChannels = results.val();
-				for(var channel in allChannels) {
-					channelArray.push(allChannels[channel]);
-				}  
-				setAllChannels(channelArray);
-			});
+			if(!channelArray.includes(channelIdz)){
+				createChannelIdArray();
+				firebase.database().ref(`vimeo/channels`).push({
+					channelName: channelNamez,
+					channelId: channelIdz,
+					channelUrl: channelUrl,
+					videoCount: videoCount,
+					captionedVideoCount: captionedVideoCount,
+					videoDuration: videoDuration,
+					captionedVideoDuration: captionedVideoDuration,
+					channelVideos: allVideos
+				});
+			}
 		}
-  }, [channelName]);
+	});
+
+//	// WRITE TO DATABASE
+//	function writeChannelData(platform, channelNamez, channelIdz, channelUrl, videoCount, captionedVideoCount, videoDuration, captionedVideoDuration, allVideos, channelArray) {
+//		if(!channelArray.includes(channelIdz)){
+//			firebase.database().ref(`vimeo/channels`).push({
+//				channelName: channelNamez,
+//				channelId: channelIdz,
+//				channelUrl: channelUrl,
+//				videoCount: videoCount,
+//				captionedVideoCount: captionedVideoCount,
+//				videoDuration: videoDuration,
+//				captionedVideoDuration: captionedVideoDuration,
+//				channelVideos: allVideos
+//			});
+//		}
+//	};
 	
-	console.log(allChannels);
+	
+	
+//	createChannelIdArray();
+	
+//	writeChannelData(platform, channelNamez, channelIdz, channelUrl, videoCount, captionedVideoCount, videoDuration, captionedVideoDuration, allVideos, channelArray);
 
-
-	//Firebase
-	if(allChannels){
-		return(
-			<div>
-				<h1>Firebase</h1>
-				<section>
-
-				<form onSubmit={handleSubmit}>
-					<label>Channel Name:</label>
-					<input
-						type="text"
-						value={channelNameValue}
-						onChange={e => setChannelNameValue(e.target.value)}
-					/>
-					<label>Channel Id:</label>
-					<input
-						type="text"
-						value={channelIdValue}
-						onChange={e => setChannelIdValue(e.target.value)}
-					/>
-					<button type="submit">
-						Submit
-					</button>
-				</form>
-
-				</section>
-				<section>
-					 <ul>
-						 {allChannels.map((channel, index) => (
-               <FirebaseResults
-			 						key={index} 
-									index={index + 1}
-									name={channel.channelName} 
-									id={channel.channelId}
-								/>
-						))}
-					</ul>
-				</section>
-
-			</div>
-		)
-	}
-
-
-	// Check to see if a channel exists
-	if(database){
-		 return(
-			<div>
-				no data
-			</div>
-		 );
-	}
 	
 	// Otherwise, render out default screen
   return (

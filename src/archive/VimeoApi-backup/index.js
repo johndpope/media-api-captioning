@@ -113,13 +113,13 @@ function VimeoApi({channel}){
   }, [allVideos]);
 	
 	// If the video list exists, render it out
-	if(allVideos && captionedVideoDuration){
+	if(allVideos){
 		 return(
 			 <section>
 			 
 			 
 			  <FirebaseApi 
-			    platform={'vimeo'}
+			    platform={'youtube'}
 			 		channelNamez={channelName} 
 			 		channelIdz={channel}
 			 		channelUrl={channelUrl}
