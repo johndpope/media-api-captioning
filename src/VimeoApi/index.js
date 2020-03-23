@@ -4,7 +4,7 @@ import Moment from 'react-moment';
 import momentjs from "moment";
 
 	// test all 100 videos
-	const fetchAllVideos = async (setAllVideos, setVideoCount, setChannelName, channel) => {
+	const fetchAllVideos = async (setAllVideos, setVideoCount, setChannelName, setChannelUrl, channel) => {
 		
 		let client_id = process.env.REACT_APP_VIMEO_CLIENT_ID;
 		let client_secret = process.env.REACT_APP_VIMEO_CLIENT_SECRET;
@@ -21,6 +21,7 @@ import momentjs from "moment";
 			let allVideos = body.data;
 			let videoCount = body.total;
 			let channelName = body.data[0].user.name;
+			let channelUrl = body.data[0].user.link;
 			
 			if(totalPages > 1) {
 				// loop through
@@ -38,6 +39,7 @@ import momentjs from "moment";
 
 				setVideoCount(videoCount);
 				setChannelName(channelName);
+				setChannelUrl(channelUrl);
 			}
 		})
 	};
@@ -71,6 +73,7 @@ function VimeoApi({channel}){
 	const [videoDuration, setVideoDuration] = React.useState();
 	const [captionedVideoDuration, setCaptionedVideoDuration] = React.useState();
 	const [channelName, setChannelName] = React.useState();
+	const [channelUrl, setChannelUrl] = React.useState();
 	const [allVideos, setAllVideos] = React.useState();
 	
 	
@@ -78,7 +81,7 @@ function VimeoApi({channel}){
 	React.useEffect(() => {
 		if(!allVideos && channel){
       (async () => {
-        const incomingData = await fetchAllVideos(setAllVideos, setVideoCount, setChannelName, channel);
+        const incomingData = await fetchAllVideos(setAllVideos, setVideoCount, setChannelName, setChannelUrl, channel);
       })();
 		}
   }, [channel]);
@@ -114,7 +117,7 @@ function VimeoApi({channel}){
 			 <section>
 				 <h2>{channelName}</h2>
 			   <div>Channel id: {channel}</div>
-			   <div>Channel URL:</div>
+			   <div>Channel URL: {channelUrl}</div>
 			 	 <div>Channel media count: {videoCount}</div>
 			   <div>Channel captioned media count: {captionedVideoCount}</div>
 			   <div>Channel media duration: {videoDuration}</div>
